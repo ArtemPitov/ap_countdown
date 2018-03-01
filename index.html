@@ -23,7 +23,7 @@
             else if (typeof this.timer.dataset.format === 'undefined')
                 throw "undefined date format!";
 
-            this.finish = new Date(this.timer.dataset.finish).getTime(),
+            this.finish = new Date(this.convertDateForIos(this.timer.dataset.finish)).getTime(),
             this.format = this.timer.dataset.format;
 
             if (typeof this.timer.dataset.timezone !== 'undefined')
@@ -38,9 +38,9 @@
 
             interval = self.finish - self.TimeCorrectionUTC(parseInt(self.timezone, 10)).getTime();
 
-            days     = Math.floor(interval / (1000 * 60 * 60 * 24)),
-            hours    = Math.floor((interval % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-            minutes  = Math.floor((interval % (1000 * 60 * 60)) / (1000 * 60)),
+            days     = Math.floor(interval / (1000 * 60 * 60 * 24));
+            hours    = Math.floor((interval % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            minutes  = Math.floor((interval % (1000 * 60 * 60)) / (1000 * 60));
             seconds  = Math.floor((interval % (1000 * 60)) / 1000);
 
             if (hours <= 9) 
@@ -97,7 +97,15 @@
 
             // return time as a string
             return nd;
-        }
+        },
+	    
+        /* https://stackoverflow.com/a/45186166 */
+        convertDateForIos: function (date) 
+        {
+            var arr = date.split(/[- :]/);
+            date = new Date(arr[0], arr[1]-1, arr[2], arr[3], arr[4], arr[5]);
+            return date;
+          }
     };
 
     document.addEventListener("DOMContentLoaded", countdown.run('countdown'));
