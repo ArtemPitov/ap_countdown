@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+<body>
+<div id="countdown" data-format="%D days %H:%M:%S" data-finish="2019-01-01 00:00:00" data-timezone="3"></div>
+<script type="text/javascript">
+~(function () {
+    var countdown = 
+    {
+        timer:    null,
+        interval: null,
+        finish:   null,
+        format:   null,
+        timezone: 0,
+
+        run: function (elem_id) 
+        {
+            this.timer = document.getElementById(elem_id);
+
+            if (typeof this.timer.dataset.finish === 'undefined')
+                throw 'undefined date finish!';
+            else if (typeof this.timer.dataset.format === 'undefined')
+                throw "undefined date format!";
+
+            this.finish = new Date(this.timer.dataset.finish).getTime(),
+            this.format = this.timer.dataset.format;
+
+            if (typeof this.timer.dataset.timezone !== 'undefined')
+                this.timezone = this.timer.dataset.timezone;    
+
+            this.interval = setInterval(this.counter, 1000);        
+        },
+
+        counter: function () 
+        {
+            var days, hours, minutes, seconds, interval, self = countdown, format;
+
+            interval = self.finish - self.TimeCorrectionUTC(parseInt(self.timezone, 10)).getTime();
+
+            days     = Math.floor(interval / (1000 * 60 * 60 * 24)),
+            hours    = Math.floor((interval % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+            minutes  = Math.floor((interval % (1000 * 60 * 60)) / (1000 * 60)),
+            seconds  = Math.floor((interval % (1000 * 60)) / 1000);
+
+            if (hours <= 9) 
+                hours = '0' + hours;
+            
+            if (minutes <= 9)
+                minutes = '0' + minutes;
+
+            if (seconds <= 9)
+                seconds = '0' + seconds;      
+
+            if (interval < 0) {
+                clearInterval(self.interval);
+                self.timer.remove();
+            } else {
+                    
+                format = self.format;
+
+                if (days == 0)
+                    format = self.format.replace(/%D{1}[\sА-яЁёA-z]+/gi, '');
+
+                format = format.replace(/%[A-Z]{1}/gi, function (match, p, str, s2) {
+                    switch (match) 
+                    {
+                        case '%D':
+                            return days;
+                        case '%H':
+                            return hours;
+                        case '%M':
+                            return minutes;
+                        case '%S':
+                            return seconds;
+                        default:
+                            return match;
+                    }
+                });
+
+                self.timer.innerText = format;
+            }                       
+        },
+
+        TimeCorrectionUTC: function (offset) 
+        {
+            var d, utc, nd;
+
+            /* create Date object for current location */
+            d = new Date();
+            
+            /* convert to msec, add local time zone offsetand get UTC time in msec */
+            utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+
+            // create new Date object with supplied offset
+            nd = new Date(utc + (3600000 * offset));
+
+            // return time as a string
+            return nd;
+        }
+    };
+
+    document.addEventListener("DOMContentLoaded", countdown.run('countdown'));
+})();
+</script>
+
+</html>	
